@@ -1,15 +1,15 @@
-import withPWA from 'next-pwa';
+// next.config.js
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+});
 
-const config = {
+/** @type {import('next').NextConfig} */
+module.exports = withPWA({
   reactStrictMode: true,
   env: {
     API_KEY: process.env.API_KEY,
     SPOONACULAR_API_KEY: process.env.SPOONACULAR_API_KEY,
   },
-};
-
-export default withPWA({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-})(config);
+});
