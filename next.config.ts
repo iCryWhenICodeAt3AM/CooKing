@@ -1,7 +1,15 @@
-import type { NextConfig } from "next";
+import withPWA from 'next-pwa';
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const config = {
+  reactStrictMode: true,
+  env: {
+    API_KEY: process.env.API_KEY,
+    SPOONACULAR_API_KEY: process.env.SPOONACULAR_API_KEY,
+  },
 };
 
-export default nextConfig;
+export default withPWA({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+})(config);

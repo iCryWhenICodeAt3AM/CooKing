@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 245, 245, 245;
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -20,7 +26,57 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  -webkit-tap-highlight-color: transparent;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  input, button {
+    font-size: 16px; /* Prevents zoom on focus in iOS */
+  }
+}
+
+/* Recipe Carousel Styles */
+.recipe-carousel {
+  position: relative;
+  padding: 0 24px;
+}
+
+.recipe-carousel .slick-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+.recipe-carousel .slick-prev {
+  left: 0;
+}
+
+.recipe-carousel .slick-next {
+  right: 0;
+}
+
+.recipe-carousel .slick-dots {
+  bottom: -30px;
+}
+
+.recipe-carousel .slick-dots li button:before {
+  font-size: 8px;
+}
+
+.recipe-carousel .slick-slide {
+  padding: 10px;
 }
