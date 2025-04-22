@@ -6,10 +6,12 @@ interface IngredientInputProps {
 }
 
 type InputCategory = 'ingredient' | 'product' | 'preference';
+type IngredientStatus = 'available' | 'missing' | 'optional';
 
 interface TaggedIngredient {
   text: string;
   category: InputCategory;
+  status: IngredientStatus;
 }
 
 export function IngredientInput({ onSubmit }: IngredientInputProps) {
@@ -17,17 +19,60 @@ export function IngredientInput({ onSubmit }: IngredientInputProps) {
   const [currentInput, setCurrentInput] = useState('');
 
   const categorizeInput = (input: string): TaggedIngredient => {
-    const lowerInput = input.toLowerCase();
-    // Cooking products
+    // Remove any trailing dashes
+    let cleanInput = input.replace(/-+$/, '').trim();
+    const lowerInput = cleanInput.toLowerCase();
+    
+    // Default status is available
+    let status: IngredientStatus = 'available';
+    
+    // Check if ingredient is marked as needed/missing
+    if (lowerInput.includes('needs to be purchased') || 
+        lowerInput.includes('needed') ||
+        lowerInput.includes('missing')) {
+      status = 'missing';
+      // Clean up the text by removing the status indicators
+      cleanInput = cleanInput
+        .replace(/\[needs to be purchased\]/i, '')
+        .replace(/\(needs to be purchased\)/i, '')
+        .replace(/- needs to be purchased/i, '')
+        .replace(/needs to be purchased/i, '')
+        .replace(/\[needed\]/i, '')
+        .replace(/\(needed\)/i, '')
+        .replace(/- needed/i, '')
+        .replace(/needed/i, '')
+        .replace(/\[missing\]/i, '')
+        .replace(/\(missing\)/i, '')
+        .replace(/- missing/i, '')
+        .replace(/missing/i, '')
+        .trim();
+    }
+
+    // Check if ingredient is marked as optional
+    if (lowerInput.includes('optional')) {
+      status = 'optional';
+      // Clean up the text
+      cleanInput = cleanInput
+        .replace(/\[optional\]/i, '')
+        .replace(/\(optional\)/i, '')
+        .replace(/- optional/i, '')
+        .replace(/optional/i, '')
+        .trim();
+    }
+
+    // Determine category
+    let category: InputCategory = 'ingredient';
     if (lowerInput.includes('stock') || lowerInput.includes('msg') || lowerInput === 'water') {
-      return { text: input, category: 'product' };
+      category = 'product';
+    } else if (lowerInput.includes('style') || lowerInput.includes('easy') || lowerInput.includes('fast')) {
+      category = 'preference';
     }
-    // Cooking preferences
-    if (lowerInput.includes('style') || lowerInput.includes('easy') || lowerInput.includes('fast')) {
-      return { text: input, category: 'preference' };
-    }
-    // Default to ingredient
-    return { text: input, category: 'ingredient' };
+
+    return { 
+      text: cleanInput,
+      category,
+      status
+    };
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -49,15 +94,22 @@ export function IngredientInput({ onSubmit }: IngredientInputProps) {
     }
   };
 
-  const getTagColor = (category: InputCategory): string => {
-    switch (category) {
-      case 'product':
-        return 'bg-green-100';
-      case 'preference':
-        return 'bg-purple-100';
-      default:
-        return 'bg-blue-100';
-    }
+  const getTagColor = (ingredient: TaggedIngredient): string => {
+    // First determine status color
+    const statusColor = {
+      available: 'bg-opacity-100',
+      missing: 'bg-opacity-50 border-2 border-dashed',
+      optional: 'bg-opacity-30'
+    }[ingredient.status];
+
+    // Then combine with category color
+    const baseColor = {
+      product: 'bg-green-100',
+      preference: 'bg-purple-100',
+      ingredient: 'bg-blue-100'
+    }[ingredient.category];
+
+    return `${baseColor} ${statusColor}`;
   };
 
   return (
@@ -68,7 +120,7 @@ export function IngredientInput({ onSubmit }: IngredientInputProps) {
             key={index}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className={`flex items-center px-3 py-1 rounded-full ${getTagColor(ingredient.category)}`}
+            className={`flex items-center px-3 py-1 rounded-full ${getTagColor(ingredient)}`}
           >
             <span>{ingredient.text}</span>
             <button
@@ -84,7 +136,7 @@ export function IngredientInput({ onSubmit }: IngredientInputProps) {
           value={currentInput}
           onChange={(e) => setCurrentInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Add ingredient and press Enter"
+          placeholder="Add ingredient"
           className="flex-1 min-w-[200px] p-2 outline-none"
         />
       </div>

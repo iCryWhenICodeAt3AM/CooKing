@@ -202,7 +202,7 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
                   {recipe.instructions.map((step, i) => (
                     <li key={i} className="flex">
                       <span className={`font-medium mr-3 ${
-                        step.isCrucial ? 'text-red-500' : 'text-blue-500'
+                        'text-blue-500'
                       }`}>
                         {i + 1}.
                       </span>
