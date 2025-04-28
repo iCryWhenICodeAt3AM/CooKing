@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
 const metadata = {
-  title: 'CooKing - Smart Recipe Assistant',
+  title: 'CooKing',
   description: 'Get AI-powered recipe suggestions based on your available ingredients',
   manifest: '/manifest.json',
   themeColor: '#ffffff',
@@ -33,14 +33,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <title>{metadata.title}</title>
         <meta name="theme-color" content={metadata.themeColor} />
         <meta name="viewport" content={metadata.viewport} />
         <link rel="manifest" href={metadata.manifest} />
         <meta name="description" content={metadata.description} />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" type="image/png" href="/CooKing-Icon.png" />
+        <link rel="apple-touch-icon" href="/CooKing-Icon.png" />
+        <meta property="og:image" content="/CooKing.png" />
       </head>
       <body>
-        <main className="min-h-screen bg-gray-50">
+        <main className="min-h-screen pt-16 bg-gray-50 bg-[url('/cooking-background.jpg')] bg-cover bg-center bg-fixed">
           {children}
           <Toaster position="bottom-center" />
         </main>

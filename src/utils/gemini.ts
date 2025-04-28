@@ -1,8 +1,13 @@
+// Updated code to use Gemini Grounding with Google Search
+
 const API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
+// Prompt to generate recipe suggestions with exact ingredient matching
 const RECIPE_PROMPT = `You are a creative cooking expert. Given these ingredients: [ingredient_list], suggest 3 delicious recipes.
 
-For EACH recipe, use this EXACT format (including the --- separators):
+Important Requirements:
+- Only match ingredients exactly: do not substitute, generalize, or infer varieties. For example, if "onions" is provided, do not use "green onions", and vice versa.
+- For EACH recipe, use this EXACT format (including the --- separators):
 
 ---
 Recipe: [Recipe Name]
@@ -27,14 +32,17 @@ Tips: [Essential cooking tips, substitutions, or storage advice]
 
 Keep steps clear and numbered. Use standard US measurements (cups, tablespoons, etc.) with metric equivalents when possible.
 Focus on practical, achievable recipes that match the available ingredients.
-Mark each ingredient clearly as [AVAILABLE], [MISSING], or [OPTIONAL] based on the user's ingredient list.`;
+When marking availability, only consider exact ingredient names; do not treat related variants as matches.`;
 
 /**
- * Calls the Gemini API to generate smart recipe suggestions.
- * @param ingredients - Array of user-provided ingredients.
- * @returns Formatted recipe suggestions text.
+ * Calls the Gemini API to generate smart recipe suggestions,
+ * grounded and fact-checked via Google Search.
+ * @param {string[]} ingredients - Array of user-provided ingredients.
+ * @returns {Promise<string>} Formatted recipe suggestions with citations.
  */
-export async function getRecipeSuggestions(ingredients: string[]) {
+export async function getRecipeSuggestions(ingredients) {
+  // Build the prompt, ensuring ingredients list is comma-separated
+  const promptText = RECIPE_PROMPT.replace('[ingredient_list]', ingredients.join(', '));
   try {
     const response = await fetch(`${API_ENDPOINT}?key=${process.env.API_KEY}`, {
       method: 'POST',
@@ -42,12 +50,10 @@ export async function getRecipeSuggestions(ingredients: string[]) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: RECIPE_PROMPT.replace('[ingredient_list]', ingredients.join(', '))
-          }]
-        }]
-      })
+        contents: [{ parts: [{ text: promptText }] }],
+        tools: ['google_search_retrieval'],          // enable grounding
+        dynamicRetrievalConfig: { threshold: 0.0 },  // always ground for maximum accuracy
+      }),
     });
 
     if (!response.ok) {
@@ -55,7 +61,33 @@ export async function getRecipeSuggestions(ingredients: string[]) {
     }
 
     const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
+    const candidate = data.candidates?.[0];
+    const text = candidate?.content?.parts?.[0]?.text || '';
+    let sources = [];
+
+    // Extract grounding sources (redirect URIs) if available
+    if (candidate?.groundingMetadata?.groundingChunks) {
+      sources = candidate.groundingMetadata.groundingChunks
+        .map((chunk: { web?: { uri?: string } }) => chunk.web?.uri)
+        .filter((uri: any) => uri);
+    }
+
+    // Fallback: use citationMetadata if provided
+    if (!sources.length && candidate?.citationMetadata) {
+      sources = candidate.citationMetadata
+        .map(meta => meta.url || meta.link)
+        .filter(link => link);
+    }
+
+    // Append source links if any
+    if (sources.length) {
+      const uniqueSources = Array.from(new Set(sources));
+      return `${text}\n---\nSources:\n${uniqueSources
+        .map((link, i) => `${i + 1}. ${link}`)
+        .join('\n')}`;
+    }
+
+    return text;
   } catch (error) {
     console.error('Error generating recipes:', error);
     throw new Error('Failed to generate recipes. Please try again.');
