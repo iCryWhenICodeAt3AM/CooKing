@@ -8,6 +8,7 @@ import {
   ExclamationCircleIcon,
   CheckCircleIcon,
   MinusCircleIcon,
+  LinkIcon
 } from '@heroicons/react/24/outline';
 
 interface RecipeOutputProps {
@@ -30,6 +31,7 @@ interface AIRecipe {
     isCrucial: boolean;
   }>;
   tips?: string;
+  sources?: string[];
 }
 
 export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
@@ -94,6 +96,14 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
 
     const tips = tipsStart > 0 ? lines[tipsStart].replace('Tips:', '').trim() : undefined;
 
+    // Parse sources if they exist
+    const sourcesStart = lines.findIndex(l => l.startsWith('Sources:'));
+    const sources = sourcesStart > 0
+      ? lines.slice(sourcesStart + 1)
+        .map(line => line.replace(/^\d+\.\s*/, '').trim())
+        .filter(Boolean)
+      : undefined;
+
     if (!recipeName || parsedInstructions.length === 0) return null;
 
     return {
@@ -105,6 +115,7 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
       ingredients: parsedIngredients,
       instructions: parsedInstructions,
       tips,
+      sources
     };
   };
 
@@ -244,6 +255,29 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
               <div className="mt-6 bg-blue-400/20 backdrop-blur-[2px] rounded-lg p-4 border border-blue-400/30">
                 <h4 className="font-semibold text-blue-200 mb-2">Tips</h4>
                 <p className="text-white/90">{recipe.tips}</p>
+              </div>
+            )}
+
+            {recipe.sources && recipe.sources.length > 0 && (
+              <div className="mt-6 bg-white/10 backdrop-blur-[2px] rounded-lg p-4 border border-white/[0.1]">
+                <h4 className="font-semibold text-white/90 mb-2 flex items-center">
+                  <LinkIcon className="w-4 h-4 mr-2" />
+                  Recipe Sources
+                </h4>
+                <ul className="space-y-2">
+                  {recipe.sources.map((source, i) => (
+                    <li key={i}>
+                      <a 
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-300 hover:text-blue-200 transition-colors break-all text-sm"
+                      >
+                        {source}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
