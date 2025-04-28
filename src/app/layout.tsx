@@ -1,22 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
+import Image from 'next/image';
 import './globals.css';
-
-const metadata = {
-  title: 'CooKing',
-  description: 'Get AI-powered recipe suggestions based on your available ingredients',
-  manifest: '/manifest.json',
-  themeColor: '#ffffff',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
@@ -28,25 +23,34 @@ export default function RootLayout({
           console.error('Service Worker registration failed:', error);
         });
     }
+    // Simulate loading time
+    setTimeout(() => setIsLoading(false), 1500);
   }, []);
 
   return (
     <html lang="en">
-      <head>
-        <title>{metadata.title}</title>
-        <meta name="theme-color" content={metadata.themeColor} />
-        <meta name="viewport" content={metadata.viewport} />
-        <link rel="manifest" href={metadata.manifest} />
-        <meta name="description" content={metadata.description} />
-        <link rel="icon" type="image/png" href="/CooKing-Icon.png" />
-        <link rel="apple-touch-icon" href="/CooKing-Icon.png" />
-        <meta property="og:image" content="/CooKing.png" />
-      </head>
       <body>
-        <main className="min-h-screen pt-16 bg-gray-50 bg-[url('/cooking-background.jpg')] bg-cover bg-center bg-fixed">
-          {children}
-          <Toaster position="bottom-center" />
-        </main>
+        {isLoading ? (
+          <div className="fixed inset-0 flex flex-col items-center justify-center bg-[url('/cooking-background.jpg')] bg-cover bg-center">
+            <div className="bg-white/90 p-8 rounded-lg shadow-xl flex flex-col items-center">
+              <Image
+                src="/CooKing-Icon.png"
+                alt="CooKing Logo"
+                width={96}
+                height={96}
+                className="mb-4"
+                priority
+              />
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">CooKing</h1>
+              <div className="animate-pulse text-gray-600">Loading your kitchen...</div>
+            </div>
+          </div>
+        ) : (
+          <main className="min-h-screen pt-16 bg-gray-50 bg-[url('/cooking-background.jpg')] bg-cover bg-center bg-fixed">
+            {children}
+            <Toaster position="bottom-center" />
+          </main>
+        )}
       </body>
     </html>
   );
