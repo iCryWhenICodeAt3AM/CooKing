@@ -10,13 +10,26 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'CooKing',
+    startupImage: ['/CooKing.png']
   },
   applicationName: 'CooKing',
   formatDetection: {
     telephone: false,
   },
   icons: {
-    icon: '/CooKing-Icon.png',
-    apple: '/CooKing-Icon.png',
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/CooKing-Icon.png', sizes: '192x192', type: 'image/png' }
+    ]
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    'msapplication-tap-highlight': 'no',
+    'msapplication-TileColor': '#ffffff'
+  }
 };

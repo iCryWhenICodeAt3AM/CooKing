@@ -23,12 +23,21 @@ export default function RootLayout({
           console.error('Service Worker registration failed:', error);
         });
     }
-    // Simulate loading time
     setTimeout(() => setIsLoading(false), 1500);
   }, []);
 
   return (
     <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#ffffff" />
+        <link rel="apple-touch-icon" href="/CooKing-Icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="CooKing" />
+      </head>
       <body>
         {isLoading ? (
           <div className="fixed inset-0 flex flex-col items-center justify-center bg-[url('/cooking-background.jpg')] bg-cover bg-center">
