@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import Image from 'next/image';
+import { Analytics } from "@vercel/analytics/react"
 import './globals.css';
 
 export default function RootLayout({
