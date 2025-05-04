@@ -39,8 +39,7 @@ export default function Home() {
             />
           </div>
           <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">CooKing</h1>
-          <p className="text-white text-lg drop-shadow">Enter your ingredients and let AI suggest delicious recipes</p>
-        </div>
+          <p className="text-white text-lg drop-shadow">Enter your ingredients (press Enter after each one) and let AI suggest delicious recipes</p>        </div>
 
         <IngredientInput onSubmit={handleSubmit} />
 
