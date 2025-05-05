@@ -31,6 +31,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <title>CooKing - Free AI Recipe Generator</title>
+        <meta name="description" content="Create custom recipes with AI using ingredients you have at home. Our free recipe generator powered by Gemini AI transforms your available ingredients into delicious meals." />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link rel="manifest" href="/manifest.json" />
