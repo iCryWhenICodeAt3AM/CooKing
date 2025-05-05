@@ -59,10 +59,17 @@ export default function RootLayout({
             </div>
           </div>
         ) : (
-          <main className="min-h-screen pt-16 bg-gray-50 bg-[url('/cooking-background.jpg')] bg-cover bg-center bg-fixed">
-            {children}
-            <Toaster position="bottom-center" />
-          </main>
+          <div className="relative min-h-screen">
+            {/* Enhanced blur overlay */}
+            <div className="fixed inset-0 bg-[url('/cooking-background.jpg')] bg-cover bg-center bg-fixed" />
+            <div className="fixed inset-0 backdrop-blur-md bg-black/30" />
+            
+            {/* Content */}
+            <main className="relative min-h-screen pt-16">
+              {children}
+              <Toaster position="bottom-center" />
+            </main>
+          </div>
         )}
         <Analytics />
       </body>
