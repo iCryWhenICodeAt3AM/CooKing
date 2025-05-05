@@ -43,8 +43,30 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
   const pageDescription = "Generate custom recipes with our Free AI Recipe Generator. CooKing uses Gemini AI to create personalized cooking ideas based on your available ingredients.";
   const keywords = "AI Recipe, Free AI Recipe Generator, Cooking AI, Gemini AI Recipe, Cooking Github, AI Cooking Assistant";
 
+  // Function to remove double asterisks from text except in titles
+  const removeAsterisksExceptTitle = (text: string): string => {
+    // Don't modify title lines (Recipe:, Description:, etc.)
+    if (text.startsWith('Recipe:') || 
+        text.startsWith('Description:') || 
+        text.startsWith('Total Time:') || 
+        text.startsWith('Serves:') || 
+        text.startsWith('Difficulty:') ||
+        text.startsWith('Ingredients:') ||
+        text.startsWith('Instructions:') ||
+        text.startsWith('Tips:') ||
+        text.startsWith('Sources:')) {
+      return text;
+    }
+    
+    // Remove double asterisks from all other text
+    return text.replace(/\*\*([^*]+)\*\*/g, '$1');
+  };
+
   const parseRecipe = (section: string): AIRecipe | null => {
-    const lines = section.trim().split('\n');
+    // Clean the recipe text by removing double asterisks
+    const cleanedLines = section.trim().split('\n').map(removeAsterisksExceptTitle);
+    const lines = cleanedLines;
+    
     if (lines.length < 3) return null;
 
     const getField = (prefix: string) => {
@@ -76,12 +98,32 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
       if (ing.includes('[OPTIONAL]')) {
         status = 'optional';
       }
-      // Check if ingredient is marked as available or is in user's ingredients list
-      else if (ing.includes('[AVAILABLE]') || ingredients.some(userIng => 
-        text.toLowerCase().includes(userIng.toLowerCase()) ||
-        userIng.toLowerCase().includes(text.toLowerCase())
-      )) {
+      // Check if ingredient is explicitly marked as available
+      else if (ing.includes('[AVAILABLE]')) {
         status = 'available';
+      }
+      // Check if ingredient matches any user-provided ingredient with a more precise matching
+      else if (ingredients.some(userIng => {
+        const userIngLower = userIng.toLowerCase().trim();
+        // Extract the base ingredient name (removing quantities and descriptors)
+        const ingredientBase = text.toLowerCase()
+          .replace(/^\d+\/?\d*\s*(cup|tablespoon|teaspoon|tbsp|tsp|oz|ounce|pound|lb|g|gram|ml|l|liter|stick|packet|pinch|to taste|large|medium|small)s?\b/i, '')
+          .replace(/,.*$/, '') // Remove anything after commas
+          .trim();
+        
+        // More precise matching focused on the main ingredient name
+        return ingredientBase.includes(userIngLower) || 
+               userIngLower.includes(ingredientBase) ||
+               // Exact match for simple single-word ingredients
+               (userIngLower === ingredientBase);
+      })) {
+        status = 'available';
+      }
+      // Otherwise, it's missing (default)
+
+      // Force status to 'missing' if explicitly marked as missing
+      if (ing.includes('[MISSING]')) {
+        status = 'missing';
       }
 
       return { text, status };
