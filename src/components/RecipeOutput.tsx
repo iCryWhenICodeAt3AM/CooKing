@@ -31,6 +31,10 @@ interface AIRecipe {
     text: string;
     isCrucial: boolean;
   }>;
+  unusedIngredients?: Array<{
+    ingredient: string;
+    reason: string;
+  }>;
   tips?: string;
   sources?: string[];
 }
@@ -83,6 +87,7 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
     const ingredientsStart = lines.findIndex(l => l.startsWith('Ingredients:')) + 1;
     const instructionsStart = lines.findIndex(l => l.startsWith('Instructions:')) + 1;
     const tipsStart = lines.findIndex(l => l.startsWith('Tips:'));
+    const unusedIngredientsStart = lines.findIndex(l => l.startsWith('Unused Ingredients:'));
 
     // Parse ingredients with status indicators
     const rawIngredients = lines
@@ -91,7 +96,7 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
       .map(l => l.replace('•', '').trim());
 
     const parsedIngredients = rawIngredients.map(ing => {
-      const text = ing.replace(/\[(AVAILABLE|MISSING|OPTIONAL)\]/g, '').trim();
+      const text = ing.replace(/\s*-\s*\[(AVAILABLE|MISSING|OPTIONAL)\]/g, '').trim();
       let status: 'available' | 'missing' | 'optional' = 'missing';
 
       // Check if ingredient is marked as optional in the text
@@ -130,7 +135,7 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
     });
 
     const parsedInstructions = lines
-      .slice(instructionsStart, tipsStart > 0 ? tipsStart : undefined)
+      .slice(instructionsStart, tipsStart > 0 ? tipsStart : (unusedIngredientsStart > 0 ? unusedIngredientsStart : undefined))
       .filter(l => /^\d+\./.test(l))
       .map(l => ({
         text: l.replace(/^\d+\.\s*/, '').trim(),
@@ -142,7 +147,37 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
       }))
       .filter(inst => inst.text);
 
-    const tips = tipsStart > 0 ? lines[tipsStart].replace('Tips:', '').trim() : undefined;
+    // Parse the tips section
+    let tips: string | undefined;
+    if (tipsStart > 0) {
+      const nextSectionStart = [unusedIngredientsStart].filter(idx => idx > tipsStart && idx > 0)[0];
+      const tipLines = lines.slice(tipsStart, nextSectionStart);
+      tips = tipLines.join(' ').replace('Tips:', '').trim();
+    }
+
+    // Parse unused ingredients if they exist
+    let unusedIngredients: { ingredient: string; reason: string }[] | undefined;
+    if (unusedIngredientsStart > 0) {
+      const rawUnusedIngredients = lines
+        .slice(unusedIngredientsStart + 1)
+        .filter(l => l.trim().startsWith('•'))
+        .map(l => l.replace('•', '').trim());
+      
+      unusedIngredients = rawUnusedIngredients.map(item => {
+        const parts = item.split('–');
+        if (parts.length < 2) {
+          const dashParts = item.split('-');
+          return {
+            ingredient: dashParts[0]?.trim() || item,
+            reason: dashParts.slice(1).join('-').trim() || 'Not suitable for this recipe'
+          };
+        }
+        return {
+          ingredient: parts[0].trim(),
+          reason: parts[1].trim()
+        };
+      });
+    }
 
     // Parse sources if they exist
     const sourcesStart = lines.findIndex(l => l.startsWith('Sources:'));
@@ -162,6 +197,7 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
       difficulty,
       ingredients: parsedIngredients,
       instructions: parsedInstructions,
+      unusedIngredients,
       tips,
       sources
     };
@@ -411,6 +447,32 @@ export function RecipeOutput({ recipeText, ingredients }: RecipeOutputProps) {
                   
                   <h4 className="font-semibold text-blue-200 mb-2 relative z-10">Tips</h4>
                   <p className="text-white/90 relative z-10">{recipe.tips}</p>
+                </motion.div>
+              )}
+
+              {recipe.unusedIngredients && recipe.unusedIngredients.length > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.55 }}
+                  className="mt-6 bg-purple-400/10 backdrop-blur-lg rounded-lg p-4 border border-purple-400/20 relative overflow-hidden"
+                >
+                  {/* Subtle glass highlight */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-400/5 via-transparent to-transparent pointer-events-none"></div>
+                  
+                  <h4 className="font-semibold text-purple-200 mb-2 relative z-10">Unused Ingredients</h4>
+                  <ul className="space-y-2">
+                    {recipe.unusedIngredients.map((item, i) => (
+                      <li key={i} className="flex items-start relative z-10">
+                        <span className="text-purple-300 mr-2">•</span>
+                        <div>
+                          <span className="font-medium text-white/90">{item.ingredient}</span>
+                          <span className="mx-1 text-white/50">–</span>
+                          <span className="text-white/70">{item.reason}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 </motion.div>
               )}
 
