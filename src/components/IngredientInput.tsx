@@ -114,7 +114,10 @@ export function IngredientInput({ onSubmit }: IngredientInputProps) {
 
   return (
     <div className="w-full max-w-md mx-auto space-y-4">
-      <div className="flex flex-wrap gap-1.5 sm:gap-2 min-h-[100px] p-2 sm:p-3 rounded-[10px] bg-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] backdrop-blur-[3px] border border-white/[0.18]">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 min-h-[100px] p-2 sm:p-3 rounded-[12px] bg-white/15 shadow-[0_8px_32px_0_rgba(31,38,135,0.27)] backdrop-blur-xl border border-white/[0.18] relative overflow-hidden group">
+        {/* Glass effect inner highlight */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none"></div>
+        
         {ingredients.map((ingredient, index) => (
           <motion.div
             key={index}
@@ -126,6 +129,7 @@ export function IngredientInput({ onSubmit }: IngredientInputProps) {
             <button
               onClick={() => removeIngredient(index)}
               className="ml-1.5 sm:ml-2 text-gray-500 hover:text-red-500 transition-colors flex-shrink-0"
+              aria-label={`Remove ${ingredient.text}`}
             >
               ×
             </button>
@@ -137,16 +141,22 @@ export function IngredientInput({ onSubmit }: IngredientInputProps) {
           onChange={(e) => setCurrentInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Add ingredient"
-          className="flex-1 min-w-[100px] sm:min-w-[200px] p-1.5 sm:p-2 outline-none bg-transparent placeholder:text-gray-400 text-sm sm:text-base"
+          className="flex-1 min-w-[100px] sm:min-w-[200px] p-1.5 sm:p-2 outline-none bg-transparent placeholder:text-gray-400/80 text-sm sm:text-base text-white"
+          aria-label="Enter ingredient and press Enter"
         />
       </div>
-      <button
+      
+      <motion.button
         onClick={handleSubmit}
         disabled={ingredients.length === 0}
-        className="w-full py-3 px-6 rounded-[10px] bg-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] backdrop-blur-[3px] border border-white/[0.18] text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.98 }}
+        className="w-full py-3 px-6 rounded-[12px] bg-white/15 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] backdrop-blur-xl border border-white/[0.18] text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 relative overflow-hidden group"
       >
-        Get Recipe Suggestions
-      </button>
+        {/* Glass effect inner highlight */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-70 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+        <span className="relative z-10">Get Recipe Suggestions</span>
+      </motion.button>
     </div>
   );
 }
