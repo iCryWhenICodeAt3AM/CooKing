@@ -1,6 +1,6 @@
-import { ViewportConfig } from 'next';
+import type { Viewport } from 'next';
 
-export const viewport: ViewportConfig = {
+export const viewport: Viewport = {
   themeColor: '#ffffff',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  width: 'device-width',
 };
