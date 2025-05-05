@@ -48,6 +48,34 @@ export default function Home() {
           <p className="text-white text-lg drop-shadow">Enter your ingredients (press Enter after each one) and let AI suggest delicious recipes</p>
         </div>
 
+        {/* SEO-optimized feature section - only visible when no recipes are loaded */}
+        {!recipeResult && !loading && (
+          <div className="max-w-3xl mx-auto mb-10 text-white/80">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-semibold mb-2">Free AI Recipe Generator</h2>
+              <p className="mb-4">
+                Transform your available ingredients into delicious meals with our
+                <strong> AI-powered recipe generator</strong>.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-4 text-left">
+              <div className="bg-white/10 p-4 rounded-lg backdrop-blur-lg shadow-[0_4px_16px_0_rgba(31,38,135,0.2)] border border-white/10">
+                <h3 className="font-semibold mb-2">Recipe by Ingredients</h3>
+                <p>Input any combination of ingredients and our AI will create personalized recipes just for you.</p>
+              </div>
+              <div className="bg-white/10 p-4 rounded-lg backdrop-blur-lg shadow-[0_4px_16px_0_rgba(31,38,135,0.2)] border border-white/10">
+                <h3 className="font-semibold mb-2">Cooking with AI</h3>
+                <p>Our Gemini AI understands cooking techniques and flavor combinations to suggest realistic, delicious recipes.</p>
+              </div>
+              <div className="bg-white/10 p-4 rounded-lg backdrop-blur-lg shadow-[0_4px_16px_0_rgba(31,38,135,0.2)] border border-white/10">
+                <h3 className="font-semibold mb-2">AI Kitchen Assistant</h3>
+                <p>Get step-by-step instructions and tips to make cooking easier and more enjoyable.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <IngredientInput onSubmit={handleSubmit} />
 
         {loading && (
