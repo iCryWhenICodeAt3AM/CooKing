@@ -25,34 +25,40 @@ export class GeminiParsingError extends Error {
   }
 }
 
-const RECIPE_PROMPT = `You are a creative cooking expert. Given these ingredients: [ingredient_list], suggest 3 delicious recipes.
+const RECIPE_PROMPT = `You are a creative cooking expert specializing in practical and delicious recipes with excellent flavor harmony. Given the following ingredients: [ingredient_list], suggest 3 diverse and realistic recipes that prioritize *delicious, well-balanced flavor combinations* and proven culinary logic.
 
-For EACH recipe, use this EXACT format (including the --- separators):
+Each recipe must be truly appetizing, achievable for home cooks, and based on realistic ingredient synergy. Only include recipes where the flavors and textures make sense together — avoid gimmicky or forced combinations.
+
+Use this **exact format** for each recipe (with all sections and the --- separators):
 
 ---
 Recipe: [Recipe Name]
-Description: A brief, appetizing description
+Description: A mouth-watering summary of the dish, explaining the key flavor pairings and why certain ingredients were prioritized or skipped. Emphasize harmony and practicality.
 Total Time: [Prep Time + Cook Time]
 Serves: [Number of servings]
 Difficulty: [Easy/Medium/Hard]
 
-Ingredients: (with exact measurements)
-• [amount] [ingredient] - [AVAILABLE] [from user's list]
-• [amount] [ingredient] - [MISSING] [needs to be purchased]
-• [amount] [ingredient] - [OPTIONAL] [can be skipped or substituted]
-[continue for all ingredients, marking each as AVAILABLE/MISSING/OPTIONAL]
+Ingredients: (Mark each with one of the following)
+• [amount] [ingredient] - [AVAILABLE]
+• [amount] [ingredient] - [MISSING]
+• [amount] [ingredient] - [OPTIONAL] (briefly say why or suggest a substitute)
 
 Instructions:
-1. [Clear, detailed step with timing if applicable]
-2. [Next step]
-[continue numbered steps]
+1. [Clear, step-by-step instruction with timing if needed]
+2. [Continue steps...]
 
-Tips: [Essential cooking tips, substitutions, or storage advice]
+Tips: [Smart cooking tips, flavor-enhancing substitutions, or storage advice]
+
+Unused Ingredients:
+• [ingredient] – [brief reason it wasn’t a good fit for this dish]
 ---
 
-Keep steps clear and numbered. Use standard US measurements (cups, tablespoons, etc.) with metric equivalents when possible.
-Focus on practical, achievable recipes that match the available ingredients.
-Mark each ingredient clearly as [AVAILABLE], [MISSING], or [OPTIONAL] based on the user's ingredient list.`;
+Guidelines:
+- Ensure the 3 recipes offer **variety in type** (e.g., one main, one side/soup, one breakfast/snack/dessert).
+- Focus on flavor *compatibility* — build dishes around real-world culinary pairings, not just random ingredient inclusion.
+- Always mark ingredients as [AVAILABLE], [MISSING], or [OPTIONAL] — no exceptions.
+- Use standard US measurements (with metric in parentheses when helpful).
+- Keep it practical, cohesive, and crave-worthy.`;
 
 /**
  * Calls the Gemini API to generate smart recipe suggestions.
