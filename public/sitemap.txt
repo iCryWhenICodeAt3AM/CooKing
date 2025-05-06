@@ -1,1 +1,2 @@
 https://cooking-sepia.vercel.app/
+https://cooking-sepia.vercel.app/offline
